@@ -1,11 +1,45 @@
+# Latest update: chat, posting and media refresh
+
+**This is the COMPLETE package: original website plus all updates through 12.**
+
+1. Run `supabase/UniChat_Combined_Upgrade.sql` in Supabase SQL Editor. Existing projects do not need to run Setup again. Keep Row Level Security enabled. If upgrades 02–11 already completed successfully, running only `UniChat_Update_12.sql` is also supported.
+2. Copy **all files inside this ZIP's website folder** into the original repository's website folder. Replace existing files. Include both new social-refresh files; do not create website/website. Keep your existing .git folder.
+3. Commit and push the website and SQL changes. Wait for Vercel Ready, then hard-refresh.
+
+```bash
+git add website supabase SETUP.md INSTALL_UPDATE.md OWNER_GUIDE.md
+git commit -m "Fix posting and refresh UniChat chat and media"
+git push origin main
+```
+
+### What changed in update 12
+
+- Fixed the reproduced `new row violates row-level security policy for table unichat_content` when a new post is inserted and immediately returned by the SDK. The SELECT policy now checks the new row's author directly. Other viewers still require the post audience check. RLS remains enabled.
+- One-to-one chats open directly: no message-request approval step. Blocks, suspension, maintenance, messaging feature switches and recipient privacy preferences remain enforced in Supabase. Existing conversations are preserved. Group chat invitations still require acceptance.
+- Messenger-style chat list, selected conversation panel, student search, media bubbles, typing/delivery/read indicators and green Active now markers. Existing students' active-status choices are preserved. Enable **Settings → Show my online status** to share your status; hidden status is not falsely shown as offline. Active status is refreshed about every 15 seconds and uses recent visible-tab heartbeats, not exact continuous presence.
+- Photos/videos preview in the post composer and published feed. Chat image/video previews load when near the visible conversation area; PDFs remain document links. Upload limits still apply and can be managed by the owner.
+- More is now a full **Menu page**, with feature tiles and five primary mobile tabs. It is not a collapsible dialog.
+- Followers and Following open a full searchable Connections page with avatars, profile links, follow buttons and pagination. Own-profile Posts and Communities counts are also clickable.
+- Reels and Stories buttons immediately open a photo/video-only native picker, then show a visual preview and caption before sharing. Mobile OS/browser determines whether this appears as Photos, Gallery or a file picker; a website cannot force a particular phone gallery app. Desktop browsers normally use a file dialog. Common browser-decodable nonstandard photos are converted to JPEG; unsupported formats ask for a standard JPEG/PNG or MP4 export.
+- Reels use a vertical scroll-snap feed: the visible video plays muted, the previous one pauses, with explicit pause/sound/next controls. Stories have a full-height viewer, progress bars, previous/next tap zones, pause and sound controls; video Stories start muted. Browser autoplay settings may require a tap. Video files are not transcoded on the server.
+- Removed the Supabase-powered banner and obsolete preview notices.
+
+### Verification
+
+Local PostgreSQL-compatible tests reproduced the original post INSERT RETURNING failure and passed after the policy fix, including photo posts. Tests also passed direct chat without acceptance, idempotent conversation creation, participant-only private history, blocks/nobody messaging preferences, active-status privacy and the earlier migration/owner/media/comment/birthday/matching regressions. The combined migration was applied twice to test reruns.
+
+Browser QA used a disposable local mock SDK. Checked: direct chat open/send with no request UI; green online marker; image inside a message; full Menu page; clickable Followers page; selecting a photo and showing its composer preview; publishing its photo post; direct Reel picker, video preview and upload; Reel autoplay and next-video scrolling with the previous video paused; Story image viewer and tap controls. Physical Android/iPhone picker behavior and live Supabase Auth/Storage/Realtime remain to be checked after installation. The package does not contain the mock SDK or test media.
+
+---
+
 # UniChat combined upgrade
 
-This package combines upgrades 02–11. It is prepared for the original live version. Existing accounts, posts and branding are preserved. No changes have been applied to your live project by this package.
+This package combines upgrades 02–12. It is prepared for the original live version. Existing accounts, posts and branding are preserved. No changes have been applied to your live project by this package.
 
 ## Install once when ready
 
 1. In Supabase SQL Editor, run the entire supabase/UniChat_Combined_Upgrade.sql. You do not need to run the individual numbered upgrades as well. Only a fresh project needs UniChat_Setup.sql first.
-2. Extract the package and copy all files in website/ into website/ in your existing VS Code repository. Keep your repository's .git folder. Include features.js, voice-discover.js, photo-crop.js, priority-upgrades.js, social-media.js, owner-controls.js follow-lists.js, student-experience.js, inline-comments.js, messaging-experience.js and student-experience.css.
+2. Extract the package and copy all files in website/ into website/ in your existing VS Code repository. Keep your repository's .git folder. Include features.js, voice-discover.js, photo-crop.js, priority-upgrades.js, social-media.js, owner-controls.js follow-lists.js, student-experience.js, inline-comments.js, messaging-experience.js student-experience.css, social-refresh.js and social-refresh.css.
 3. From the repository root:
 
 ```bash

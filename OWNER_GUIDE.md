@@ -103,3 +103,10 @@ Academic hubs lets the owner archive/reopen hubs. Archiving stops new contributi
 Account requests lists students who asked for deletion and are deactivated. This release queues deletion for manual handling; it does not offer automatic Auth/Storage/database erasure. Before completing a request, review report-evidence retention and database foreign-key dependencies. Removing an Auth identity alone is not a complete erasure workflow. Use a tested administrative cleanup process in your own Supabase project, including stored file bytes and application records; do not mark a request complete before that work succeeds. Students can cancel the request and reactivate until processing is completed. Never put a service role key in website files.
 
 The public-data export now filters profiles, posts/interactions and media through their visibility rules. Private birthdays, user settings, collaboration preferences, private hub content and private conversations are excluded. Students' personal exports contain their own settings/profile and content, relevant conversation data and media metadata, not passwords or media file bytes. Treat these exports as private files.
+
+
+## Update 12: direct messages and posting fix
+
+Direct one-to-one messages no longer require approval. Each recipient's messaging preferences, blocks and active account status still apply. Opening a direct chat creates or reuses a participant-only conversation record. Group invitations remain opt-in. Online markers reveal presence only for students who enable sharing; owner usage statistics retain their existing administrative purpose.
+
+The posting fix corrects INSERT RETURNING access checks and does not disable RLS or permit impersonating another post owner. If the old error is still displayed, ensure the latest combined SQL completed and the entire latest website folder reached the deployment. Check owner feature switches, account status and maintenance state rather than disabling RLS.
