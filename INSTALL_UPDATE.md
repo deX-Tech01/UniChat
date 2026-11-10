@@ -1,3 +1,17 @@
+# Custom institution and department entry — Update 14.1
+
+This is a website-only update. If your database already has Update 14, no new SQL is needed.
+
+1. Copy the complete `website` folder into your existing UniChat Git repository and replace matching files. This update changes `app.js` and `priority-upgrades.js`.
+2. Commit and push to your usual main branch; wait for Vercel to finish deploying, then refresh the site.
+3. Signup and Edit profile now offer **My Institution isn't Listed** and **My Department isn't Listed**. Selecting either reveals a required text field. Students may enter a missing department even at a listed institution.
+
+Typed names are stored as the student's institution/department. They do not grant directory-editing permissions or automatically add entries to everyone's signup dropdown. Owners continue to manage the shared Directory. Existing profile names, including names outside the current directory, are preserved when editing. Selecting a different institution clears the previous department so the student can make a new choice.
+
+All previous features and SQL upgrades remain included below and in the package.
+
+---
+
 # Update 14 — responsive loading and owner upload sizes
 
 1. Run `supabase/UniChat_Combined_Upgrade.sql` in the existing Supabase project's SQL Editor. This preserves accounts and content; it does not disable RLS. For a project already on Update 13, Update 14 alone is sufficient.

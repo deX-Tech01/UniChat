@@ -123,3 +123,7 @@ For a real timing check after installation, use the same account, device and con
 
 ## Update 14: larger upload limits
 Owner dashboard → Upload limits accepts higher KB values without UniChat's old category maximums. Existing limits stay unchanged until you save. Supabase Storage's project/global limit must also permit the chosen size; this does not make storage or bandwidth unlimited. Supported formats and duration limits remain enforced.
+
+
+## Custom student-entered institution and department
+Students can choose “My Institution isn't Listed” or “My Department isn't Listed” at signup or when editing their profile. Their typed names are saved on their own profile. The shared school directory remains owner-managed; review and add recurring names through Directory if appropriate. This does not verify institutional affiliation.
