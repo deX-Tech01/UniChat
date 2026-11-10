@@ -1,3 +1,57 @@
+# Update 14 — responsive loading and owner upload sizes
+
+1. Run `supabase/UniChat_Combined_Upgrade.sql` in the existing Supabase project's SQL Editor. This preserves accounts and content; it does not disable RLS. For a project already on Update 13, Update 14 alone is sufficient.
+2. Copy the **entire website folder** into your existing repository, including performance.js, responsive.js, and the updated index.html. Commit and push to your usual main branch. Keep Vercel Root Directory as website.
+3. Refresh the deployed page after Vercel finishes. In Owner dashboard → Upload limits, enter the maximum KB and save (1024 KB = 1 MB). For example 102400 KB = 100 MB. Existing selected sizes are preserved until you change them.
+
+The owner form and database no longer cap sizes at the old 1/5/10/20 MB values. Supabase project/global upload limits, available storage, bandwidth, and device/browser limits still apply; adjust the project's Storage upload limit in Supabase too if necessary. Raising UniChat's limit cannot override the hosting service. Supported file types and the existing 60-second maximum duration remain enforced. New values are checked as accurately representable whole bytes.
+
+Chats paint immediately and fetch the newest 30 mixed messages in one server request. Load earlier messages retrieves older pages. Text, voice recording/playback, image/video previews, PDFs, replies, search, reporting, privacy, blocks and opt-in online/read status remain supported. Drafts and playing media survive background refreshes. Session-only caches avoid repeated work; writes and realtime updates invalidate them. Cached data is cleared at sign-out. Loading data still requires network time; a first visit on a slow connection is not instantaneous.
+
+The package includes all original files and upgrades. Database testing uses local PostgreSQL-compatible fixtures; browser testing uses mock accounts, not your production messages.
+
+---
+
+# Performance update 13 — faster sign-in and first load
+
+This is the COMPLETE UniChat package, containing the original website and every upgrade through 13. It has not been deployed to your live site.
+
+## Apply this update
+
+1. Run **supabase/UniChat_Combined_Upgrade.sql** in Supabase SQL Editor. If upgrades 02–12 already completed successfully, you can instead run **supabase/UniChat_Update_13.sql** only. Do not run both, and do not rerun Setup on an existing project.
+2. Copy **every file inside website/** into the website folder in your original VS Code Git repository. Replace existing files and include the new **performance.js** and **performance.css**. Avoid website/website and keep your existing .git folder.
+3. Commit and push, wait for Vercel Ready, then hard-refresh the page.
+
+```bash
+git add website supabase SETUP.md INSTALL_UPDATE.md OWNER_GUIDE.md
+git commit -m "Speed up UniChat startup and feed loading"
+git push origin main
+```
+
+## What is faster
+
+- The sign-in completion path now makes one authenticated bootstrap request for your own profile, current role/maintenance settings, preferences and personal state. It no longer loads that same account/feed twice before showing the home screen.
+- Your account shell and composer appear first. A separate bounded request loads the first **15 posts**, then **Load more posts** adds another page. The query fetches one extra metadata row to determine whether another page exists. Tied timestamps use an ID cursor to prevent duplicates.
+- Campus, Following, your own posts, other student posts and bookmarks use server-filtered pages. Own profile post/community totals come from the database rather than the number of currently loaded posts.
+- Notifications, Stories, birthday reminders, announcements and student suggestions no longer block first display. Communities, event/member lists and group chats load when their sections are opened.
+- Simultaneous requests for the same data or signed media URL share one pending request. Short-lived caches stay in memory and are scoped to the signed-in account. Sign-out clears them; late responses from an older account/session are rejected. No new private-profile or message cache is saved to localStorage.
+- One debounced realtime channel refreshes relevant sections instead of several overlapping handlers reloading the entire account. Owner access/maintenance checks and presence heartbeats remain active. Message history and read state remain protected by Supabase rules.
+- The feed does not wait for signed image/video URLs. It shows media placeholders and requests those URLs near the viewport. Repeated avatar URL requests are coalesced. Videos retain explicit controls in posts and muted active-video playback in Reels.
+- Large post photos are resized to a maximum long edge of 1600 px and compressed when that makes the file smaller. PNG/WebP transparency is retained; animated GIFs are preserved. Video transcoding and server-side video thumbnails are not included.
+- Scripts download in parallel using ordered defer attributes. Loading placeholders and retry states replace a blank initial screen. A secondary feature failing does not undo a successful sign-in.
+
+## Measured checks and limitations
+
+A local browser comparison used identical disposable data and a simulated **60 ms delay per SDK request**. The previous version made **26 data calls before the home shell appeared**, taking about **1298 ms** in that run. The revised path made **1 call before the shell**, taking about **134 ms** (a repeat measured about 113 ms). These are controlled local tests of session restoration/sign-in completion, not a measurement or promise of your live Supabase, password-authentication, email confirmation or Nigerian mobile-network latency.
+
+The revised feed initially rendered 15 posts. Loading more produced 30 distinct posts with no duplicates; switching to My Campus showed only the campus result. Browser checks also covered own-profile totals, chat loading on demand, sending a message, and returning to the feed. A 2400×1600 JPEG of 4,197,610 bytes was resized to 1600×1067 and approximately 912 KB, then published and displayed through the lazy media path.
+
+PostgreSQL-compatible tests passed original-data preservation/reruns, earlier owner/media/messaging/privacy regressions, bootstrap user isolation, private preferences, 15+1 feed bounds, stable cursors, profile/audience visibility, maintenance restrictions and anonymous denial. Separate cache tests passed request coalescing, expiry, mutation invalidation, retry after failure and rejecting a late private response after switching accounts.
+
+After installation, test sign-in and signup on your own phone and connection. Supabase response times, project availability, email delivery and media sizes still affect actual loading. This update does not move your database, change plans, add a paid service or alter hosting.
+
+---
+
 # Latest update: chat, posting and media refresh
 
 **This is the COMPLETE package: original website plus all updates through 12.**

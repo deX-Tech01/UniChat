@@ -41,8 +41,9 @@ async function mReelPage(reset=true) {
   if(page!=='Reels'||token!==mPageToken)return;
   mMore=data.length===12;mOffset+=data.length;
   const rows=data.filter(r=>!ucBlocked(r.author));for(const r of rows){mRows.set(r.id,r);mReels.push(r)}
-  if(rows.length){const stats=checked(await client.rpc('unichat_reel_stats',{reel_ids:rows.map(r=>r.id)}))||[];if(page!=='Reels'||token!==mPageToken)return;stats.forEach(s=>mStats.set(s.reel_id,s))}
   $('#m-reels').insertAdjacentHTML('beforeend',rows.map(mReelCard).join(''));
+  rows.forEach(r=>{const button=document.getElementById('m-like-'+r.id);if(button)button.disabled=true});mObserve();xPhotos();
+  if(rows.length){const stats=checked(await client.rpc('unichat_reel_stats',{reel_ids:rows.map(r=>r.id)}))||[];if(page!=='Reels'||token!==mPageToken)return;stats.forEach(stat=>{mStats.set(stat.reel_id,stat);const like=document.getElementById('m-like-'+stat.reel_id),comments=document.getElementById('m-comment-count-'+stat.reel_id);if(like){like.textContent=(stat.liked?'♥':'♡')+' '+stat.likes;like.setAttribute('aria-pressed',String(!!stat.liked));like.disabled=false}if(comments)comments.innerHTML=eBubble+' '+stat.comments})}
   $('#m-feed-status').textContent=mReels.length?'':'No Reels yet. Share your first campus moment.';
   document.getElementById('m-more')?.remove();if(mMore)$('#main').insertAdjacentHTML('beforeend','<button class="follow" id="m-more" onclick="mReelPage(false)">Load more Reels</button>');
   mObserve();xPhotos();useConfig(cfg);
@@ -97,7 +98,7 @@ async function mSelectMedia(input,kind) {
  const draft={file,url:URL.createObjectURL(file),duration:0,ready:false};mDraft=draft;status.textContent='Checking your file…';
  try {
   if(!mTypes[file.type]||(kind==='reel'&&!file.type.startsWith('video/')))throw Error('Choose a supported photo or MP4/WebM video.');
-  if(!file.size||file.size>(file.type.startsWith('image/')?5242880:20971520))throw Error('Photos must be at most 5 MB and videos at most 20 MB.');
+  if(!file.size||file.size>oLimit('unichat-social-media').bytes)throw Error('This file exceeds the owner upload limit.');
   if(file.type.startsWith('video/'))draft.duration=await mVideoDuration(file,draft.url);
   else await new Promise((resolve,reject)=>{const img=new Image();img.onload=resolve;img.onerror=()=>reject(Error('Cannot open this photo.'));img.src=draft.url});
   if(mDraft!==draft||!preview.isConnected)return;
@@ -175,7 +176,7 @@ function mCoverEditor() {
 }
 async function mSelectCover(input) {
  mCleanCover();const file=input.files?.[0];if(!file)return;const draft={file,url:URL.createObjectURL(file),image:new Image(),ready:false};mCover=draft;
- try{if(!['image/jpeg','image/png','image/webp'].includes(file.type)||file.size>10485760)throw Error('Choose a JPEG, PNG or WebP photo under 10 MB.');await new Promise((resolve,reject)=>{draft.image.onload=resolve;draft.image.onerror=()=>reject(Error('Cannot open this photo.'));draft.image.src=draft.url});if(mCover!==draft)return;draft.ready=true;$('#m-cover-error').textContent='';mCoverPaint()}catch(e){if(mCover===draft){mCleanCover();$('#m-cover-error').textContent=e.message;input.value=''}}
+ try{if(!['image/jpeg','image/png','image/webp'].includes(file.type)||file.size>Math.max(10485760,oLimit('unichat-covers').bytes))throw Error('Choose a supported photo within the owner upload limit.');await new Promise((resolve,reject)=>{draft.image.onload=resolve;draft.image.onerror=()=>reject(Error('Cannot open this photo.'));draft.image.src=draft.url});if(mCover!==draft)return;draft.ready=true;$('#m-cover-error').textContent='';mCoverPaint()}catch(e){if(mCover===draft){mCleanCover();$('#m-cover-error').textContent=e.message;input.value=''}}
 }
 function mCoverPaint() {
  if(!mCover?.ready||!$('#m-cover-canvas'))return;const image=mCover.image,zoom=Number($('#m-cover-zoom').value),width=Math.min(image.width,image.height*3)/zoom,height=width/3,x=(image.width-width)*Number($('#m-cover-x').value)/100,y=(image.height-height)*Number($('#m-cover-y').value)/100;const canvas=$('#m-cover-canvas');canvas.getContext('2d').drawImage(image,x,y,width,height,0,0,canvas.width,canvas.height);
@@ -183,7 +184,7 @@ function mCoverPaint() {
 function mCoverLock(locked){const dialog=$('#modal');dialog.querySelectorAll('button,input').forEach(el=>el.disabled=locked);dialog.oncancel=locked?e=>e.preventDefault():null}
 async function mSaveCover(button) {
  if(mBusy)return;if(!mCover?.ready){$('#m-cover-error').textContent='Choose a photo first.';return}mBusy=true;mCoverLock(true);const old=session.profile.cover_path,path=authUser.id+'/'+xUUID()+'.jpg';let uploaded=false,saved=false;
- try{const canvas=$('#m-cover-canvas'),blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/jpeg',.85));if(!blob||blob.size>1048576)throw Error('This photo is too large. Choose a simpler photo.');checked(await client.storage.from('unichat-covers').upload(path,blob,{contentType:'image/jpeg'}));uploaded=true;const data={...session.profile,cover_path:path};await api('profile',data);saved=true;session.profile=data;Object.assign(state,data);if(old)await client.storage.from('unichat-covers').remove([old]);mCleanCover();$('#modal').close();render();toast('Cover photo saved')}catch(e){if(uploaded&&!saved)await client.storage.from('unichat-covers').remove([path]);$('#m-cover-error').textContent=mError(e)}finally{mBusy=false;mCoverLock(false)}
+ try{const canvas=$('#m-cover-canvas'),blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/jpeg',.85));if(!blob||blob.size>oLimit('unichat-covers').bytes)throw Error('This photo is too large. Choose a simpler photo.');checked(await client.storage.from('unichat-covers').upload(path,blob,{contentType:'image/jpeg'}));uploaded=true;const data={...session.profile,cover_path:path};await api('profile',data);saved=true;session.profile=data;Object.assign(state,data);if(old)await client.storage.from('unichat-covers').remove([old]);mCleanCover();$('#modal').close();render();toast('Cover photo saved')}catch(e){if(uploaded&&!saved)await client.storage.from('unichat-covers').remove([path]);$('#m-cover-error').textContent=mError(e)}finally{mBusy=false;mCoverLock(false)}
 }
 async function mRemoveCover(button) {
  if(mBusy)return;mBusy=true;mCoverLock(true);try{const old=session.profile.cover_path,data={...session.profile,cover_path:null};await api('profile',data);session.profile=data;Object.assign(state,data);if(old)await client.storage.from('unichat-covers').remove([old]);mCoverCache.clear();mCleanCover();$('#modal').close();render();toast('Cover photo removed')}catch(e){$('#m-cover-error').textContent=mError(e)}finally{mBusy=false;mCoverLock(false)}

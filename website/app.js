@@ -80,4 +80,4 @@ send=async function(){const text=$('#msg')?.value.trim();if(!text||!selectedChat
 // Label starter content explicitly until a real community replaces it.
 const realAll=all;all=()=>cloudPosts.length?cloudPosts:seed.map(p=>({...p,name:p.name+' · Sample'}));
 client.auth.onAuthStateChange((event)=>{if(event==='PASSWORD_RECOVERY'){recoveryMode=true;setTimeout(passwordReset,0);}if(event==='SIGNED_OUT')setTimeout(()=>authScreen(),0)});
-window.addEventListener('DOMContentLoaded',async()=>{document.body.style.visibility='hidden';try{const r=await client.from('unichat_settings').select('data').eq('id','published').maybeSingle();if(r.data)cfg={...cfg,...r.data.data};}catch{}const {data}=await client.auth.getSession();if(recoveryMode||location.hash.includes('type=recovery')){passwordReset();return}if(data.session)await boot();else authScreen();});
+window.addEventListener('DOMContentLoaded',()=>pAppStart());

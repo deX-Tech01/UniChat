@@ -110,3 +110,16 @@ The public-data export now filters profiles, posts/interactions and media throug
 Direct one-to-one messages no longer require approval. Each recipient's messaging preferences, blocks and active account status still apply. Opening a direct chat creates or reuses a participant-only conversation record. Group invitations remain opt-in. Online markers reveal presence only for students who enable sharing; owner usage statistics retain their existing administrative purpose.
 
 The posting fix corrects INSERT RETURNING access checks and does not disable RLS or permit impersonating another post owner. If the old error is still displayed, ensure the latest combined SQL completed and the entire latest website folder reached the deployment. Check owner feature switches, account status and maintenance state rather than disabling RLS.
+
+
+## Performance update 13
+
+Startup now obtains current account/access information in one authenticated request. The fast bootstrap has no target-user parameter and returns only the caller's own profile, settings/preferences and state. Feed pages execute under the caller's normal RLS permissions, preserve post audiences and blocks, and fetch a maximum of 16 metadata rows (15 displayed plus a next-page check). Three indexes support chronological, author and campus feeds.
+
+Caches are short-lived, account-scoped and in-memory. Sign-out clears them and invalidates pending data responses. Permission decisions still come from Supabase, not from a cached browser role. Administrative draft loading is deferred until the owner opens the dashboard. No student data or existing media is deleted by update 13.
+
+For a real timing check after installation, use the same account, device and connection before/after a hard refresh. Separate password/email-confirmation time from the time after successful authentication. Avoid treating the controlled local benchmark as a live service guarantee.
+
+
+## Update 14: larger upload limits
+Owner dashboard → Upload limits accepts higher KB values without UniChat's old category maximums. Existing limits stay unchanged until you save. Supabase Storage's project/global limit must also permit the chosen size; this does not make storage or bandwidth unlimited. Supported formats and duration limits remain enforced.
