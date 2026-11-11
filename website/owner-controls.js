@@ -3,6 +3,7 @@ let oAccess=null,oBeatTimer=null,oPollTimer=null,oTab=crypto.randomUUID(),oAdmin
 const oSections=['Overview','Students','Moderation','Announcements','Operations','Upload limits','Staff','Activity log','Security','Backups','Branding','Texts','Directory','Features','Policies','Posts','Media','Communities','Events','Discussions','Layout','History','Opportunities','Marketplace'];
 const oNewSections=new Set(oSections.slice(0,10));
 const oDefaults={
+ 'unichat-space-photos':{label:'Marketplace / hub / community pictures',bytes:5242880,types:['image/jpeg']},
  'unichat-media':{label:'Post photos / videos',bytes:2621440,types:['image/png','image/jpeg','image/webp','image/gif','video/mp4']},
  'unichat-chat-files':{label:'Chat attachments',bytes:10485760,types:['image/jpeg','image/png','image/webp','image/gif','video/mp4','video/webm','application/pdf']},
  'unichat-social-media':{label:'Reels / Stories',bytes:20971520,seconds:60,types:['image/jpeg','image/png','image/webp','video/mp4','video/webm']},

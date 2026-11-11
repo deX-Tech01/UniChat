@@ -5,7 +5,7 @@ The owner is the confirmed Supabase Auth account for chimdike247@gmail.com. The 
 ## Install
 
 1. Run the latest supabase/UniChat_Combined_Upgrade.sql in Supabase SQL Editor. It includes all earlier upgrades and works whether you installed those updates already or still use the original setup. A completely new project needs UniChat_Setup.sql first. Do not run the original setup again over an existing upgraded project.
-2. Copy every file from website/ into website/ in your existing VS Code Git repository. Include owner-controls.js, photo-crop.js and follow-lists.js. Preserve your repository's .git folder.
+2. Copy every file from website/ into website/ in your existing VS Code Git repository. Include owner-controls.js, photo-crop.js, follow-lists.js, campus-social.js and campus-social.css. Preserve your repository's .git folder.
 3. Commit and push. Vercel: Root Directory website, Framework Other, Output Directory ., no build/install command.
 4. Sign in and open Owner dashboard. The Owner section selector includes the new controls and all previous content settings.
 
@@ -37,9 +37,9 @@ Maintenance mode immediately blocks student application data and writes through 
 
 Feature switches in Features pause registration completion, posting, messaging, communities, events, uploads, Reels, Stories, group chats, opportunities, marketplace, comments, reactions, following or announcements. Switches pause new student writes and their corresponding interface; they do not erase old data. The app prevents signup through its interface while registration is paused; to disable new Supabase Auth accounts through all possible clients, also change the Auth signup setting in Supabase. Hosting, Auth delivery/quotas and billing are external project controls.
 
-Upload limits let you lower supported bucket sizes, choose permitted MIME types and set video/voice-note duration from 1 to 60 seconds. Stored file size/type limits are applied to Supabase Storage buckets, and the web app checks uploads too. Duration is constrained as declared metadata in the database and measured in the browser; there is no server transcoder analysing video/audio bytes. Limits cannot exceed the app's supported maxima:
+Upload limits let you lower supported bucket sizes, choose permitted MIME types and set video/voice-note duration from 1 to 60 seconds. Stored file size/type limits are applied to Supabase Storage buckets, and the web app checks uploads too. Duration is constrained as declared metadata in the database and measured in the browser; there is no server transcoder analysing video/audio bytes. The table below lists defaults. The owner can raise byte limits beyond these values; Supabase project/service limits still apply. Video/voice duration stays at 1–60 seconds:
 
-| Category | Maximum | Formats |
+| Category | Default limit | Formats |
 | --- | --- | --- |
 | Post media | 2.5 MB | JPEG, PNG, WebP, GIF, MP4 |
 | Chat files | 10 MB | JPEG, PNG, WebP, GIF, MP4, WebM, PDF |
@@ -47,6 +47,7 @@ Upload limits let you lower supported bucket sizes, choose permitted MIME types 
 | Voice notes | 1 MB; 60 sec | WebM, Ogg, MP4 audio |
 | Profile photos | 512 KB processed | JPEG, PNG, WebP; the editor exports JPEG |
 | Cover photos | 1 MB processed | JPEG |
+| Marketplace / hub / community pictures | 5 MB processed | JPEG |
 
 Keep JPEG enabled for the photo editors and appropriate audio formats enabled for your students' browsers. Changes affect future uploads; they do not rewrite existing files. Rerunning the combined migration preserves your chosen limits.
 
@@ -127,3 +128,12 @@ Owner dashboard → Upload limits accepts higher KB values without UniChat's old
 
 ## Custom student-entered institution and department
 Students can choose “My Institution isn't Listed” or “My Department isn't Listed” at signup or when editing their profile. Their typed names are saved on their own profile. The shared school directory remains owner-managed; review and add recurring names through Directory if appropriate. This does not verify institutional affiliation.
+
+
+## Marketplace and group pictures — Update 15
+
+Students can add one cropped product photo to a marketplace listing and edit/remove it later. Authors can delete their own listing after confirmation. Community creators can add/change their picture from Edit community. Academic hub creators can use Change group picture. The owner can manage these pictures as well. The private `unichat-space-photos` bucket is separate from post/chat media. Keep JPEG enabled in its Upload limits category; editors export JPEG. The default processed size ceiling is 5 MB and can be raised subject to Supabase limits.
+
+A picture can be linked only to its exact listing/community/hub by its creator or the owner. Linked objects cannot be deleted through the orphan-removal policy. After replacing/removing a picture or deleting a listing, cleanup attempts to remove the old unlinked object. An owner's replacement of a student's picture cannot delete the original uploader's object through that policy; manually review unlinked objects in Supabase Storage if needed. Existing automated cleanup categories are unchanged.
+
+Sharing does not expand a post's audience or bypass messaging preferences. Notifications remain private to their recipient. Tagging uses exact usernames and considers at most 20 distinct names per item; edit notifications are deduplicated per author/recipient/item. Students receive in-app follow, post-like, comment, reply, tag and chat activity notices, with unread counts and links to the relevant content. This update does not add push notifications, SMS, email campaigns or unrestricted owner chat access.

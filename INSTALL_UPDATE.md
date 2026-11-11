@@ -1,3 +1,39 @@
+# Latest release — Update 15
+
+This is the COMPLETE package: the original website and all upgrades through 15. It has not been deployed to your live site.
+
+## Install on your existing site
+
+1. Run `supabase/UniChat_Combined_Upgrade.sql` in the existing Supabase project's SQL Editor. Keep Row Level Security enabled. This preserves accounts and content. Do not rerun `UniChat_Setup.sql` on your existing project. If Updates 02–14 already completed successfully, `UniChat_Update_15.sql` alone is sufficient; run one route, not both.
+2. Copy **every file inside `website/`** into `website/` in your existing VS Code Git repository, replacing matching files and including the new `campus-social.js` and `campus-social.css`. Keep `app.js`, all other existing scripts, and your repository's `.git` folder. Avoid a nested `website/website` folder.
+3. From your repository root, commit and push:
+
+```bash
+git add website supabase SETUP.md INSTALL_UPDATE.md OWNER_GUIDE.md
+git commit -m "Add marketplace photos, group pictures, sharing and tag notifications"
+git push origin main
+```
+
+4. Wait for Vercel to finish deploying, then refresh. Keep Vercel Root Directory as `website`, Framework Other and Output Directory `.`; no build/install command is needed.
+
+## Included in this release
+
+- Marketplace listings can include one product photo. Choose from the gallery, preview, drag with one finger to position and pinch with two fingers to zoom before saving. Desktop users can drag and use the mouse wheel. Edit/replace/remove the photo later. The poster can delete their own listing after confirmation; the owner can also moderate/delete it. Deletion is permanent.
+- Communities have a creator-managed identifying picture, set when creating or editing the community. Academic hubs have the same editor during creation and a **Change group picture** action for the creator/owner. Existing groups without pictures continue to work.
+- Photos are cropped to a 4:3 marketplace image or a square group image and exported as JPEG. New private storage category **Marketplace / hub / community pictures** defaults to 5 MB per processed photo. The owner can raise it in Upload limits, subject to Supabase's own limits. Existing owner limits are preserved. Gallery options and supported source formats depend on the device/browser.
+- Post Share opens a panel with **Send to a student on UniChat**, Facebook, WhatsApp, Telegram, email, copy link and the device's native share menu where supported. Shared chat posts include a View shared post button. Shared links open their exact post, including older posts outside the first feed page. A link requires sign-in and preserves its audience; sending inside UniChat checks that both students can view it and that messaging is allowed. YouTube does not have a general website share endpoint: copy the link into your own YouTube description or post where links are supported.
+- Type `@` in a post, comment, reply or their edit fields to find visible students by name/username. Select a suggestion to insert their exact `@username`. New tags notify the selected student after saving; self-tags, blocks, inactive accounts and inaccessible post audiences do not generate tag notices. At most 20 distinct usernames are considered per item. Editing can notify newly tagged students, with at most one tag notice per author/student/item to avoid repeated edit spam. Display names with spaces are not usernames.
+- Notifications show who followed you, tagged you, liked a post, commented, replied or messaged. Follow-request actions remain available where enabled. Open a notification to reach its post/profile/conversation. There are All/Unread filters, individual read actions, Mark all as read, older notification pages and a real unread badge. Realtime updates are used when connected, with a periodic refresh while the page is visible. This is an in-app inbox, not browser push or email delivery.
+- Signup and Edit profile retain missing-institution/department entry. **Choose Department** is the default for a new blank department, including an institution with no saved departments.
+
+Photo paths and creator permissions are checked in the database, not only by hidden buttons. Images use expiring private signed URLs. Already downloaded pictures cannot be recalled. Replaced/deleted photos are removed when the uploader's orphan-cleanup request succeeds; a network failure or an owner replacing another student's picture can leave an unlinked object for manual Storage cleanup. Do not delete database `storage.objects` rows directly.
+
+Validation covered existing SQL regressions, repeated migration application, creator-only pictures/deletion, owner limits, audience-safe sharing, tags in posts/comments/replies/edits, blocked recipients, private notifications and unread counts. Local browser checks used disposable mock accounts for photo selection/cropping/display, listing deletion, community pictures, hub creation, sharing, mention selection and notification destinations. Test actual two-finger gestures and the native share menu on your own phone after installation; the desktop browser check cannot exercise every mobile gallery/share sheet.
+
+Earlier release notes follow for reference; where they describe older fixed upload sizes, those are defaults, not the latest owner-configurable ceilings.
+
+---
+
 # Custom institution and department entry — Update 14.1
 
 This is a website-only update. If your database already has Update 14, no new SQL is needed.

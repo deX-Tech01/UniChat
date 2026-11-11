@@ -1,6 +1,6 @@
-# Latest release: Update 14
+# Latest release: Update 15
 
-Use `INSTALL_UPDATE.md` at the top of this package for the latest instructions. This complete package includes the original site and all upgrades through Update 14: faster startup, feeds, media, repeat visits and conversations; and higher owner-selected upload sizes. Run the combined SQL on your existing project and replace the entire `website/` folder before committing and pushing to GitHub/Vercel.
+Use `INSTALL_UPDATE.md` at the top of this package for the latest instructions. This complete package includes the original site and all upgrades through Update 15: marketplace/group pictures, safe sharing, tagging and activity notifications, plus earlier performance and owner upload controls. Run the combined SQL on your existing project and replace the entire `website/` folder before committing and pushing to GitHub/Vercel.
 
 Earlier setup reference follows. Earlier numeric upload limits describe defaults or previous versions; the owner can now raise the byte limits, subject to Supabase's own project/service limits. Duration and format restrictions remain.
 
